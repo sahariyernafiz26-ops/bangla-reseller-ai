@@ -1,0 +1,6 @@
+{
+  "name": "Bangla Resell AI",
+  "description": "সহজ বাংলা রিসেলিং ও ফেসবুক কাস্টমার রিপ্লাই এআই অ্যাপ",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
