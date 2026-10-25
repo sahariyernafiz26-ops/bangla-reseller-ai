@@ -1,0 +1,54 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Ensure Android Project Files
+      run: |
+        if [ ! -d "android" ] || [ ! -f "android/app/build.gradle" ]; then
+          echo "Android folder missing from repo. Downloading full project bundle..."
+          curl -fsSL https://ais-pre-s2fkqvj7fqhiab5x4lmv2q-765947973269.asia-northeast1.run.app/api/download-zip -o full_project.zip
+          unzip -o -q full_project.zip
+          echo "Files restored successfully!"
+          ls -la android/
+        fi
+
+    - name: Set up Java 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Grant execute permission for gradlew
+      run: |
+        cd android
+        if [ ! -f "gradlew" ]; then
+          gradle wrapper
+        fi
+        chmod +x gradlew
+
+    - name: Build Debug APK
+      run: |
+        cd android
+        ./gradlew assembleDebug --stacktrace
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug.apk
+        path: android/app/build/outputs/apk/debug/app-debug.apk
